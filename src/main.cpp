@@ -16,54 +16,55 @@ enum gpsCompletionCodes
 
 
 // Set this to the GPS hardware serial port you wish to use
-    #define GPShwSERIAL 1 // 1 = Serial1, 2 = Serial2, 3 = Serial3, 4 = Serial4 ....
+#define GPShwSERIAL 1 // 1 = Serial1, 2 = Serial2, 3 = Serial3, 4 = Serial4 ....
 
-    uint8_t const GPSSerialPort = GPShwSERIAL; // default settings
+uint8_t const GPSSerialPort = GPShwSERIAL; // default settings
 
-    uint32_t const BaudDefault = 9600; // default settings.
-    #define SERIAL1_RX_BUFFER_SIZE = 128;  // Need large incoming buffer for GPS Packet (100 bytes).
+uint32_t const BaudDefault = 9600; // default settings.
 
-    #define DEBUG1    true              // Turn on/off main functions debug messages.
-    //#define DEBUG2    true              // Turn on/off main functions debug messages.
-    //#define DEBUG3    true              // Turn on/off setup function debug sending all data from GPS to Serial port (USB).
+#define SERIAL1_RX_BUFFER_SIZE = 128;  // Need large incoming buffer for GPS Packet (100 bytes).
 
-    /*******************************************************************************************************************
-    *   This Class is the uBlox GPS receiver Class.
-    *   Needs:
-    *       Hardware serial port the uBlox GPS Receiver is connected to (1->3) on Teensy 3.2.
-    * fix Type: 0: no fix, 1: dead reckoning only, 2: 2D-fix, 3: 3D-fix, 4: GNSS + dead reckoning combined, 5: time only fix
-    *******************************************************************************************************************/
-    UBLOX gps(GPShwSERIAL);
+#define DEBUG1    true              // Turn on/off main functions debug messages.
+//#define DEBUG2    true              // Turn on/off main functions debug messages.
+//#define DEBUG3    true              // Turn on/off setup function debug sending all data from GPS to Serial port (USB).
 
-    /*******************************************************************************************************************
-    * This Variable is set to the GPS Completon Code to indicate whether or not the GPS data has been properly received
-    * or not.
-    *******************************************************************************************************************/
-    gpsCompletionCodes gpsCodes;  // These are the Return codes from the GPS device to determine errors or good data.
+/*******************************************************************************************************************
+*   This Class is the uBlox GPS receiver Class.
+*   Needs:
+*       Hardware serial port the uBlox GPS Receiver is connected to (1->3) on Teensy 3.2.
+* fix Type: 0: no fix, 1: dead reckoning only, 2: 2D-fix, 3: 3D-fix, 4: GNSS + dead reckoning combined, 5: time only fix
+*******************************************************************************************************************/
+UBLOX gps(GPShwSERIAL);
 
-    /*******************************************************************************************************************
-    * This struct is for the uBlox data structure.
-    *******************************************************************************************************************/
-    gpsData uBloxData;
+/*******************************************************************************************************************
+* This Variable is set to the GPS Completon Code to indicate whether or not the GPS data has been properly received
+* or not.
+*******************************************************************************************************************/
+gpsCompletionCodes gpsCodes;  // These are the Return codes from the GPS device to determine errors or good data.
+
+/*******************************************************************************************************************
+* This struct is for the uBlox data structure.
+*******************************************************************************************************************/
+gpsData uBloxData;
 
 
-    /*******************************************************************************************************************
-    * This Function clears the local uint8_t(8 bit) buffer provided of data (Set to zero).
-    *******************************************************************************************************************/
-    void clearBuffer(uint8_t *LocalBufferAddress, uint16_t LocalBufferSize)
-        {
-            #if defined (DEBUG2)
-                Serial.print(F("\nClearing Buffer, its Size is: "));
-                Serial.println(LocalBufferSize, DEC);
-            #endif
+/*******************************************************************************************************************
+* This Function clears the local uint8_t(8 bit) buffer provided of data (Set to zero).
+*******************************************************************************************************************/
+void clearBuffer(uint8_t *LocalBufferAddress, uint16_t LocalBufferSize)
+    {
+        #if defined (DEBUG2)
+            Serial.print(F("\nClearing Buffer, its Size is: "));
+            Serial.println(LocalBufferSize, DEC);
+        #endif
     
-            memset(LocalBufferAddress, 0, LocalBufferSize);
+        memset(LocalBufferAddress, 0, LocalBufferSize);
  
-        }
+    }
 
-    /*******************************************************************************************************************
-    * This Function clears the local uint8_t(8 bit) buffer provided of data (Set to zero).
-    *******************************************************************************************************************/
+/*******************************************************************************************************************
+* This Function clears the local uint8_t(8 bit) buffer provided of data (Set to zero).
+*******************************************************************************************************************/
    void printBufferInASCII(uint8_t *LocalBufferAddress, uint16_t LocalBufferSize)
         {
             uint16_t a;
@@ -91,9 +92,9 @@ enum gpsCompletionCodes
 
         }
 
-    /*******************************************************************************************************************
-    * This Function clears the local uint8_t(8 bit) buffer provided of data (Set to zero).
-    *******************************************************************************************************************/
+/*******************************************************************************************************************
+* This Function clears the local uint8_t(8 bit) buffer provided of data (Set to zero).
+*******************************************************************************************************************/
     void printBufferInHEX(uint8_t *LocalBufferAddress, uint16_t LocalBufferSize)
         {
             uint8_t b;
@@ -276,7 +277,7 @@ void RestartGPS(bool initial_Startup)
         gps.begin(460800);  // Enable Teensy serial communication @ given baud rate
         gps.Poll_GPSbaud_Port1(false);  // Polls the GPS baud configuration for one I/O Port, I/O Target 0x01=UART1
     #endif
-
+    
     delay(50);
 
     #if defined (DEBUG1)
@@ -700,32 +701,6 @@ void loop()
     if (fixType == NOT_FULL_PACKET)
         {
             badPacketCount++;
-        }
-    else
-        {
-            #if defined (DEBUG1)
-                switch (fixType)
-                    {
-                        case NO_FIX:
-                            Serial.println(F("NO FIX\n"));  // Print the Heading.
-                        case DEAD_RECKONING_ONLY:
-                            Serial.println(F("DR ONLY\n"));  // Print the Heading.
-                        case TWO_D_FIX:
-                            Serial.println(F("TWO_D_FIX\n"));  // Print the Heading.
-                        case THREE_D_FIX:
-                            Serial.println(F("THREE_D_FIX\n"));  // Print the Heading.
-                        case GNSS_DR_COMBINED:
-                            Serial.println(F("GNSS_DR_COMBINED\n"));  // Print the Heading.
-                        case TIME_FIX_ONLY:
-                            Serial.println(F("TIME_FIX_ONLY\n"));  // Print the Heading.
-                        case BAD_UBLOX_PACKET:
-                            Serial.println(F("BAD PACKET\n"));  // Print the Heading.
-                        case NOT_FULL_PACKET:
-                            Serial.println(F("NOT_FULL_PACKET\n"));  // Print the Heading.
-                        default:
-                            Serial.println(F("BAD PACKET\n"));  // Print the Heading.
-                    }
-            #endif
         }
 
     if (badPacketCount == 150)  // Wait five minutes before we restart the GPS
