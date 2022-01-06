@@ -21,10 +21,11 @@ enum gpsCompletionCodes
     uint8_t const GPSSerialPort = GPShwSERIAL; // default settings
 
     uint32_t const BaudDefault = 9600; // default settings.
-    #define SERIAL1_RX_BUFFER_SIZE = 512;  // Need large incoming buffer for GPS Packet (100 bytes).
+    #define SERIAL1_RX_BUFFER_SIZE = 128;  // Need large incoming buffer for GPS Packet (100 bytes).
 
     #define DEBUG1    true              // Turn on/off main functions debug messages.
-    #define DEBUG2    true              // Turn on/off main functions debug messages.
+    //#define DEBUG2    true              // Turn on/off main functions debug messages.
+    //#define DEBUG3    true              // Turn on/off setup function debug sending all data from GPS to Serial port (USB).
 
     /*******************************************************************************************************************
     *   This Class is the uBlox GPS receiver Class.
@@ -49,7 +50,7 @@ enum gpsCompletionCodes
     /*******************************************************************************************************************
     * This Function clears the local uint8_t(8 bit) buffer provided of data (Set to zero).
     *******************************************************************************************************************/
-    void clearBuffer(uint8_t *LocalBufferAddress, int16_t LocalBufferSize)
+    void clearBuffer(uint8_t *LocalBufferAddress, uint16_t LocalBufferSize)
         {
             #if defined (DEBUG2)
                 Serial.print(F("\nClearing Buffer, its Size is: "));
@@ -60,6 +61,60 @@ enum gpsCompletionCodes
  
         }
 
+    /*******************************************************************************************************************
+    * This Function clears the local uint8_t(8 bit) buffer provided of data (Set to zero).
+    *******************************************************************************************************************/
+   void printBufferInASCII(uint8_t *LocalBufferAddress, uint16_t LocalBufferSize)
+        {
+            uint16_t a;
+
+            #if defined (DEBUG2)
+                Serial.print(F("\nPrinting Buffer in ASCII, its Size is: "));
+                Serial.println(LocalBufferSize, DEC);
+            #endif
+            Serial.println(F("These are the data bytes (in ASCII) Received: "));
+            a = 1;
+            for (size_t i = 0; i < LocalBufferSize; i++)
+                {
+                    Serial.write(LocalBufferAddress[i]);
+                    if ( a == 8 )
+                        {
+                            Serial.println("");
+                            a = 1;
+                        }
+                    else
+                        {
+                            Serial.print(" : ");
+                            a++;
+                        }
+                }
+
+        }
+
+    /*******************************************************************************************************************
+    * This Function clears the local uint8_t(8 bit) buffer provided of data (Set to zero).
+    *******************************************************************************************************************/
+    void printBufferInHEX(uint8_t *LocalBufferAddress, uint16_t LocalBufferSize)
+        {
+            uint8_t b;
+
+            b = 1;
+            for (size_t i = 0; i < LocalBufferSize; i++)
+                {
+                    Serial.print(LocalBufferAddress[i],HEX);
+                    if ( b == 8 )
+                        {
+                            Serial.println("");
+                            b = 1;
+                        }
+                    else
+                        {
+                            Serial.print(" : ");
+                            b++;
+                        }
+                }
+        }
+
 
 /************************************************************************************************************************
 * This Code starts up the GPS on Serial Port 1 either from Startup or from an error occuring needing restarting.
@@ -68,11 +123,13 @@ void RestartGPS(bool initial_Startup)
 {
     #if defined (DEBUG1)
         Serial.println(F("Restarting GPS"));
-        Serial.println(F("Ending Previous GPS\n"));
     #endif
 
     if(initial_Startup == false)
         {
+            #if defined (DEBUG1)
+                Serial.println(F("Ending Previous GPS\n"));
+            #endif
             gps.end();
             delay(100);
         }
@@ -84,6 +141,7 @@ void RestartGPS(bool initial_Startup)
     #if defined (DEBUG1)
         Serial.println(F("Trying Baud Rate 4800."));
         gps.begin(4800);
+        delay(10);
         gps.SetGPSbaud(230400, true);
         gps.end();
     #else
@@ -97,6 +155,7 @@ void RestartGPS(bool initial_Startup)
     #if defined (DEBUG1)
         Serial.println(F("Trying Baud Rate 9600."));
         gps.begin(9600);
+        delay(10);
         gps.SetGPSbaud(230400, true);
         gps.end();
     #else
@@ -110,6 +169,7 @@ void RestartGPS(bool initial_Startup)
     #if defined (DEBUG1)
         Serial.println(F("Trying Baud Rate 19200."));
         gps.begin(19200);
+        delay(10);
         gps.SetGPSbaud(230400, true);
         gps.end();
     #else
@@ -123,6 +183,7 @@ void RestartGPS(bool initial_Startup)
     #if defined (DEBUG1)
         Serial.println(F("Trying Baud Rate 38400."));
         gps.begin(38400);
+        delay(10);
         gps.SetGPSbaud(230400, true);
         gps.end();
     #else
@@ -136,6 +197,7 @@ void RestartGPS(bool initial_Startup)
     #if defined (DEBUG1)
         Serial.println(F("Trying Baud Rate 57600."));
         gps.begin(57600);
+        delay(10);
         gps.SetGPSbaud(230400, true);
         gps.end();
     #else
@@ -149,6 +211,7 @@ void RestartGPS(bool initial_Startup)
     #if defined (DEBUG1)
         Serial.println(F("Trying Baud Rate 115200."));
         gps.begin(115200);
+        delay(10);
         gps.SetGPSbaud(230400, true);
         gps.end();
     #else
@@ -162,6 +225,7 @@ void RestartGPS(bool initial_Startup)
     #if defined (DEBUG1)
         Serial.println(F("Trying Baud Rate 230400."));
         gps.begin(230400);
+        delay(10);
         gps.SetGPSbaud(230400, true);
         gps.end();
     #else
@@ -176,6 +240,7 @@ void RestartGPS(bool initial_Startup)
     #if defined (DEBUG1)
         Serial.println(F("Trying Baud Rate 460800."));
         gps.begin(460800);
+        delay(10);
         gps.SetGPSbaud(230400, true);
         gps.end();
     #else
@@ -189,6 +254,7 @@ void RestartGPS(bool initial_Startup)
     #if defined (DEBUG1)
         Serial.println(F("Trying Baud Rate 921600."));
         gps.begin(921600);
+        delay(10);
         gps.SetGPSbaud(230400, true);
         gps.end();
     #else
@@ -202,20 +268,13 @@ void RestartGPS(bool initial_Startup)
     #if defined (DEBUG1)
         Serial.println(F("Beginning the GPS at 230400 Baud Rate."));
         // now start communication with the GPS receiver at 230400 baud,
-        gps.begin(230400);  // Enable Teensy serial communication @ given baud rate
+        gps.begin(230400);  // Enable Teensy serial communication @ given baud rate.
+        delay(10);
         gps.Poll_GPSbaud_Port1(true);  // Polls the GPS baud configuration for one I/O Port, I/O Target 0x01=UART1
     #else
         // now start communication with the GPS receiver at 230400 baud,
         gps.begin(460800);  // Enable Teensy serial communication @ given baud rate
         gps.Poll_GPSbaud_Port1(false);  // Polls the GPS baud configuration for one I/O Port, I/O Target 0x01=UART1
-    #endif
-
-    delay(50);
-
-    #if defined (DEBUG1)
-        //gps.Poll_NAV_PVT();  // Polls UBX-NAV-PVT    (0x01 0x07) Navigation Position Velocity Time Solution
-    #else
-        //gps.Poll_NAV_PVT();  // Polls UBX-NAV-PVT    (0x01 0x07) Navigation Position Velocity Time Solution
     #endif
 
     delay(50);
@@ -290,12 +349,20 @@ void RestartGPS(bool initial_Startup)
 
     delay(500);  // Give the GPS time to reset.
 
+
+    #if defined (DEBUG1)
+        gps.Poll_NAV_PVT();  // Polls UBX-NAV-PVT    (0x01 0x07) Navigation Position Velocity Time Solution
+    #else
+        gps.Poll_NAV_PVT();  // Polls UBX-NAV-PVT    (0x01 0x07) Navigation Position Velocity Time Solution
+    #endif
+
     #if defined (DEBUG2)
         while (Serial.available() == 0)
         {
             unsigned int rd;
-            uint8_t incomingByte, k = 1, buffer[1024];
-            uint32_t output_start, current_micros, millis_start, incomingByteTransferTime[512], bytecount = 0, waitForMoreDataTimeout = 2000;
+            uint8_t incomingByte, k = 1, buffer[128];
+            uint16_t bytecount = 0;
+            uint32_t output_start, current_micros, millis_start, incomingByteTransferTime[128], waitForMoreDataTimeout = 1000;
 
             // Clearing the input buffer.
             clearBuffer(buffer, sizeof(buffer));
@@ -323,45 +390,25 @@ void RestartGPS(bool initial_Startup)
             Serial.print(F("This is the total number of bytes received from Serial1: "));
             Serial.println(bytecount);
 
-            Serial.println(F("These are the data bytes Received: "));
-            k = 1;
-            for (size_t i = 0; i < bytecount; i++)
-                {
-                    Serial.print(buffer[i],HEX);
-                    if ( k == 8 )
-                        {
-                            Serial.println("");
-                            k = 1;
-                        }
-                    else
-                        {
-                            Serial.print(" : ");
-                            k++;
-                        }
-                }
+            Serial.println(F("These are the data bytes (in HEX) Received: "));
+            printBufferInHEX(buffer, bytecount);
+            Serial.println(F("\n"));
+
+            Serial.println(F("These are the data bytes (in ASCII) Received: "));
+            printBufferInASCII(buffer, bytecount);
             Serial.println(F("\n"));
 
             uint32_t temp;
             k = 1;
             size_t j = 0;
 
-            for (j = 0; j < 2; j++)
-                {
-                    if (j == 0)
-                        {
-                            Serial.print(F("This is the time it took for the GPS to Return the first byte: "));
-                            Serial.print(incomingByteTransferTime[j]);
-                            Serial.println(F(" microseconds.\n"));
-                        }
-                    else if (j == 1)
-                        {
-                            Serial.println(F("These are the times (microseconds) it took to receive data bytes 2 thru x : "));
-                            temp = incomingByteTransferTime[j] - incomingByteTransferTime[j - 1];
-                            Serial.print(temp);
-                        }
-                }
-            j = 2;
-            for (j = 2; j < bytecount; j++)
+            Serial.print(F("This is the time it took for the GPS to Return the first byte: "));
+            Serial.print(incomingByteTransferTime[j]);
+            Serial.println(F(" microseconds.\n"));
+            temp = incomingByteTransferTime[j] - incomingByteTransferTime[j - 1];
+            j++;
+            Serial.print(F("These are the times it took to get each byte after the first byte:"));
+            for (j = 1; j < bytecount; j++)
                 {
                     temp = incomingByteTransferTime[j] - incomingByteTransferTime[j - 1];
                     Serial.print(temp);
@@ -534,13 +581,13 @@ uint8_t updatePositionFromGPS(void)
             switch (fixType)
                 {
                     case NO_FIX:
-                        #if defined (DEBUG2)
+                        #if defined (DEBUG1)
                             Serial.println(F("NO FIX"));  // Print the Heading.
                         #endif
                         return NO_FIX;
                         
                     case DEAD_RECKONING_ONLY:
-                        #if defined (DEBUG2)
+                        #if defined (DEBUG1)
                             Serial.println(F("DR ONLY"));  // Print the Heading.
                         #endif
                         return DEAD_RECKONING_ONLY;
@@ -558,13 +605,13 @@ uint8_t updatePositionFromGPS(void)
                         return GNSS_DR_COMBINED;
                         
                     case TIME_FIX_ONLY:
-                        #if defined (DEBUG2)
+                        #if defined (DEBUG1)
                             Serial.println(F("TIME FIX ONLY"));  // Print the Heading.
                         #endif
                         return TIME_FIX_ONLY;
 
                     case BAD_UBLOX_PACKET:
-                        #if defined (DEBUG2)
+                        #if defined (DEBUG1)
                             Serial.println(F("BAD PACKET"));  // Print the Heading.
                         #endif
                         return BAD_UBLOX_PACKET;
@@ -578,7 +625,7 @@ uint8_t updatePositionFromGPS(void)
             Serial.println(F("Full Packet Not Received"));  // Print the Heading.
             return NOT_FULL_PACKET;
         }
-    
+
 }
 
 
@@ -595,13 +642,33 @@ void setup()
     unsigned long debug_start = millis();
     while (!Serial && ((millis() - debug_start) <= 3000)) ;  // Wait for the GPS to startup and the Serial Interface.
 
+    #if defined (DEBUG3)  // This code when activated gets a byte from the GPS and sends directly to the USB Serial Port.
+        Serial1.begin(9600);  // This should be the default speed for the GPS.
+        while (1)
+            {
+             while (!Serial1.available());  // This should wait for a byte to arrive from the GPS.
+
+            uint8_t temp = Serial1.read();
+            Serial.write(temp);
+            delay(10);
+            }
+    #endif
+
+    gps.begin(9600);
+    delay(50);
     RestartGPS(initial_Startup);
     initial_Startup = false;
         
     Serial1.clear();  // Clear the Serial1 buffer of all data
     gps.Poll_NAV_PVT();  // Polls UBX-NAV-PVT, this requests the data from the GPS Module.
-    delay(1000);  // Wait 310mSecs for GPS response + 10mSecs for 100 bytes @ 230400 baud.
+    delay(2000);  // Wait 1 second for GPS response + 10mSecs for 100 bytes @ 230400 baud.
 
+    #if defined (DEBUG1)   
+        uint16_t temp = Serial1.available();
+        Serial.print(F("\nNumber of bytes received into Teensy's Receive buffer after 1 second: "));
+        Serial.println(temp);
+        Serial.println(F(""));
+    #endif
 
 }
 
@@ -620,14 +687,45 @@ void loop()
 {
     uint8_t fixType;
     int badPacketCount = 0;
-    long unsigned timer_start;
 
-    timer_start = millis();
+    #if defined (DEBUG1)   
+        uint16_t temp = Serial1.available();
+        Serial.print(F("\nNumber of bytes received into Teensy's Receive buffer after 1 second: "));
+        Serial.println(temp);
+        Serial.println(F(""));
+    #endif
 
     fixType = updatePositionFromGPS();
+
     if (fixType == NOT_FULL_PACKET)
         {
-            badPacketCount++;    
+            badPacketCount++;
+        }
+    else
+        {
+            #if defined (DEBUG1)
+                switch (fixType)
+                    {
+                        case NO_FIX:
+                            Serial.println(F("NO FIX\n"));  // Print the Heading.
+                        case DEAD_RECKONING_ONLY:
+                            Serial.println(F("DR ONLY\n"));  // Print the Heading.
+                        case TWO_D_FIX:
+                            Serial.println(F("TWO_D_FIX\n"));  // Print the Heading.
+                        case THREE_D_FIX:
+                            Serial.println(F("THREE_D_FIX\n"));  // Print the Heading.
+                        case GNSS_DR_COMBINED:
+                            Serial.println(F("GNSS_DR_COMBINED\n"));  // Print the Heading.
+                        case TIME_FIX_ONLY:
+                            Serial.println(F("TIME_FIX_ONLY\n"));  // Print the Heading.
+                        case BAD_UBLOX_PACKET:
+                            Serial.println(F("BAD PACKET\n"));  // Print the Heading.
+                        case NOT_FULL_PACKET:
+                            Serial.println(F("NOT_FULL_PACKET\n"));  // Print the Heading.
+                        default:
+                            Serial.println(F("BAD PACKET\n"));  // Print the Heading.
+                    }
+            #endif
         }
 
     if (badPacketCount == 150)  // Wait five minutes before we restart the GPS
@@ -636,47 +734,12 @@ void loop()
         }
     
     
-    #if defined (DEBUG2)
-        switch (fixType)
-            {
-                case NO_FIX:
-                 Serial.println(F("NO FIX"));  // Print the Heading.
-                    Serial.println(F(""));
-                case DEAD_RECKONING_ONLY:
-                    Serial.println(F("DR ONLY"));  // Print the Heading.
-                    Serial.println(F(""));
-                case TWO_D_FIX:
-                    Serial.println(F("TWO_D_FIX"));  // Print the Heading.
-                    Serial.println(F(""));
-                case THREE_D_FIX:
-                    Serial.println(F("THREE_D_FIX"));  // Print the Heading.
-                    Serial.println(F(""));
-                 case GNSS_DR_COMBINED:
-                    Serial.println(F("GNSS_DR_COMBINED"));  // Print the Heading.
-                    Serial.println(F(""));
-                case TIME_FIX_ONLY:
-                    Serial.println(F("TIME_FIX_ONLY"));  // Print the Heading.
-                    Serial.println(F(""));
-                case BAD_UBLOX_PACKET:
-                    Serial.println(F("BAD PACKET"));  // Print the Heading.
-                    Serial.println(F(""));
-                case NOT_FULL_PACKET:
-                    Serial.println(F("NOT_FULL_PACKET"));  // Print the Heading.
-                    Serial.println(F(""));
-                    RestartGPS(false);
-
-                default:
-                    Serial.println(F("BAD PACKET"));  // Print the Heading.
-                    Serial.println(F(""));
-
-
-        }
-        #endif
+    
         
     Serial1.clear();  // Clear the Serial1 buffer of all data
     gps.Poll_NAV_PVT();  // Polls UBX-NAV-PVT, this requests the data from the GPS Module.
 
     Serial.println(F(""));
-    while ((millis() - timer_start) <= 2000) ;  // Wait for 2 sec, this should also be plenty of time for the GPS to update.
+    delay(2000);  // Wait for 2 sec, this should also be plenty of time for the GPS to update.
 
 }
